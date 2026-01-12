@@ -5,13 +5,31 @@ const app = express();
 app.use(express.json());
 
 app.post("/signalhire-callback", (req, res) => {
-  console.log("SignalHire webhook received:", req.body);
+  const data = req.body[0];  // array item
+  const candidate = data.candidate;
 
-  // Process the incoming data here:
-  // e.g. save to database
+  const fullName = candidate.fullName;
 
-  res.status(200).send("OK");
+  // contacts array may include emails & phones
+  const emails = [];
+  const phones = [];
+
+  (candidate.contacts || []).forEach(contact => {
+    if (contact.type === "email") {
+      emails.push(contact.value);
+    }
+    if (contact.type === "phone") {
+      phones.push(contact.value);
+    }
+  });
+
+  console.log("Name:", fullName);
+  console.log("Emails:", emails);
+  console.log("Phones:", phones);
+
+  res.sendStatus(200);  // acknowledge webhook
 });
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
