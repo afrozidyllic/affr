@@ -1,34 +1,46 @@
 const express = require("express");
 const app = express();
 
+const mongoose = require("mongoose");
+
+mongoose
+  .connect("mongodb+srv://afroz:afrozidyllic@cluster0.apmwml7.mongodb.net/?appName=Cluster0", {
+
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
+
+
 // parse JSON bodies
 app.use(express.json());
 
-app.post("/signalhire-callback", (req, res) => {
-  const data = req.body[0];  // array item
-  const candidate = data.candidate;
+const Candidate = require("./models/Candidate");
 
-  const fullName = candidate.fullName;
+app.post("/signalhire-callback", async (req, res) => {
+  const item = req.body[0];
+  const candidate = item.candidate || {};
 
-  // contacts array may include emails & phones
-  const emails = [];
-  const phones = [];
+  const fullName = candidate.fullName || "";
+  const contacts = candidate.contacts || [];
+  const social = candidate.social || [];
 
-  (candidate.contacts || []).forEach(contact => {
-    if (contact.type === "email") {
-      emails.push(contact.value);
-    }
-    if (contact.type === "phone") {
-      phones.push(contact.value);
-    }
-  });
+  try {
+    await Candidate.create({
+      item: item.item,       // LinkedIn URL
+      fullName: fullName,
+      rawCandidate: candidate,
+      contacts: contacts,
+      social: social
+    });
 
-  console.log("Name:", fullName);
-  console.log("Emails:", emails);
-  console.log("Phones:", phones);
-
-  res.sendStatus(200);  // acknowledge webhook
+    console.log("Saved webhook data to MongoDB");
+    res.status(200).send("OK");
+  } catch (error) {
+    console.error("MongoDB insert error:", error);
+    res.status(500).send("Error saving data");
+  }
 });
+
 
 
 const PORT = process.env.PORT || 3000;
