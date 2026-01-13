@@ -1,6 +1,20 @@
 const express = require("express");
 const app = express();
 
+const cron = require('node-cron');
+const axios = require('axios');
+
+// Ping your own server periodically to keep it awake
+cron.schedule('*/10 * * * *', async () => {
+  try {
+    const res = await axios.get('https://affr.onrender.com/');
+    console.log('Keep-alive ping status:', res.status);
+  } catch (err) {
+    console.error('Keep-alive ping error:', err.message);
+  }
+});
+
+
 const mongoose = require("mongoose");
 
 mongoose
