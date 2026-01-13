@@ -30,9 +30,10 @@ mongoose
 // parse JSON bodies
 app.use(express.json());
 
-app.get((req,res) =>{
-  res.send("hiii") ; 
-})
+app.get("/", (req, res) => {
+  res.send("hiii");
+});
+
 
 const Candidate = require("./models/Candidate");
 
