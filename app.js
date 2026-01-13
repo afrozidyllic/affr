@@ -15,6 +15,8 @@ cron.schedule('*/10 * * * *', async () => {
 });
 
 
+
+
 const mongoose = require("mongoose");
 
 mongoose
@@ -27,6 +29,10 @@ mongoose
 
 // parse JSON bodies
 app.use(express.json());
+
+app.get((req,res) =>{
+  res.send("hiii") ; 
+})
 
 const Candidate = require("./models/Candidate");
 
